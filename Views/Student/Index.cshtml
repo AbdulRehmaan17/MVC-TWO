@@ -1,0 +1,84 @@
+﻿@model IEnumerable<ProjectX.Models.Student>
+
+@{
+    ViewData["Title"] = "Index";
+    var students = Model ?? Enumerable.Empty<ProjectX.Models.Student>();
+    var successPrint = TempData["SuccessPrint"] as string;
+    var successfully = TempData["Successfully"] as string;
+}
+
+<h1>Students List</h1>
+
+@if (!String.IsNullOrEmpty(successPrint))
+{
+    <div class="alert alert-success" role="alert">
+        @successPrint
+    </div>
+}
+
+@if (!String.IsNullOrEmpty(successfully))
+{
+    <div class="alert alert-danger" role="alert">
+        @successfully
+    </div>
+}
+<div id="student-list">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (students.Any())
+            {
+                foreach (var student in students)
+                {
+                    <tr id="student-@student.Id">
+                        <td>@student.Id</td>
+                        <td>@student.Name</td>
+                        <td>@student.Email</td>
+                        <td>@student.Phone</td>
+                        <td>
+                            <a class="btn btn-primary" asp-controller="Student" asp-action="Update" asp-route-id="@student.Id">Update</a>
+                            <button class="btn btn-danger" onclick="confirmDelete('@student.Id')">Delete</button>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5">No students found.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<a class="btn btn-success" asp-controller="Student" asp-action="Create">Add Students</a>
+
+@section Scripts {
+    <script>
+        function confirmDelete(id) {
+            var confirmation = confirm("Are you sure you want to delete the student?");
+            if (confirmation) {
+                $.ajax({
+                    url: '/Student/Delete/' + id,
+                    type: 'POST',
+                    success: function () {
+                        alert("Student deleted successfully.");
+                        $("#student-" + id).remove(); 
+                    },
+                    error: function () {
+                        alert("Error deleting the student.");
+                    }
+                });
+            }
+        }
+    </script>
+}
